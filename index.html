@@ -21,7 +21,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
-        :root { --primary: #ff6b00; --secondary: #00f2ff; --dark: #050505; }
+        :root { --primary: #ff6b00; --secondary: #00f2ff; --gold: #FFD700; --dark: #050505; }
         body { font-family: 'Outfit', sans-serif; background-color: var(--dark); color: white; overflow-x: hidden; }
         h1, h2, h3, .tech-font { font-family: 'Rajdhani', sans-serif; text-transform: uppercase; }
         
@@ -72,11 +72,11 @@
         .rotating-inner { position: absolute; inset: 2px; background: #050505; border-radius: 50%; z-index: 0; display: flex; align-items: center; justify-content: center; }
         @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- UPGRADED 3D GALLERY (ATOMIC VORTEX) --- */
+        /* --- GOLD STANDARD GALLERY --- */
         .gallery-viewport { 
             position: relative; 
             width: 100%; 
-            height: 600px; /* Taller for impact */
+            height: 600px;
             overflow: hidden; 
             display: flex; 
             align-items: center; 
@@ -84,7 +84,8 @@
             perspective: 1500px; 
             touch-action: none; 
             cursor: grab; 
-            background: radial-gradient(circle at center, #111 0%, #000 80%);
+            /* Deep technical blue background for blueprints feel */
+            background: radial-gradient(circle at center, #0a1520 0%, #000 80%);
         }
         .gallery-viewport:active { cursor: grabbing; }
         
@@ -98,53 +99,55 @@
         .gallery-item {
             position: absolute; 
             top: 50%; left: 50%;
-            width: 220px; height: 300px; /* Portrait cards */
-            margin-left: -110px; margin-top: -150px;
-            background: rgba(0,0,0,0.8); 
-            border: 2px solid var(--secondary);
-            box-shadow: 0 0 15px var(--secondary), inset 0 0 20px rgba(0, 242, 255, 0.2);
-            border-radius: 12px; 
+            width: 240px; height: 320px; /* Portrait for blueprints */
+            margin-left: -120px; margin-top: -160px;
+            background: #000; 
+            border: 1px solid #333;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            border-radius: 4px; 
             overflow: hidden;
             transform-style: preserve-3d; 
-            transition: border-color 0.3s, box-shadow 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
             backface-visibility: hidden;
-            /* Holographic Scanline Effect */
-            background-image: linear-gradient(0deg, transparent 24%, rgba(0, 242, 255, .1) 25%, rgba(0, 242, 255, .1) 26%, transparent 27%, transparent 74%, rgba(0, 242, 255, .1) 75%, rgba(0, 242, 255, .1) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(0, 242, 255, .1) 25%, rgba(0, 242, 255, .1) 26%, transparent 27%, transparent 74%, rgba(0, 242, 255, .1) 75%, rgba(0, 242, 255, .1) 76%, transparent 77%, transparent);
-            background-size: 30px 30px;
+            /* Blueprint Grid Overlay */
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
         .gallery-item:hover {
-            border-color: var(--primary);
-            box-shadow: 0 0 30px var(--primary), inset 0 0 20px rgba(255, 107, 0, 0.3);
+            border-color: var(--gold);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            transform: scale(1.05) translateZ(20px);
             z-index: 100;
         }
 
         .gallery-item img { 
             width: 100%; height: 100%; 
-            object-fit: cover; 
+            object-fit: contain; /* Keep entire blueprint visible */
+            background: #fff; /* Default white background for drawings */
             pointer-events: none; 
-            opacity: 0.8;
-            transition: opacity 0.3s;
         }
-        .gallery-item:hover img { opacity: 1; }
 
-        /* Number tag on image */
+        /* Tag styling */
         .gallery-tag {
-            position: absolute; bottom: 10px; right: 10px;
-            background: rgba(0,0,0,0.8); color: var(--secondary);
-            padding: 2px 8px; border-radius: 4px; font-family: 'Rajdhani'; font-weight: bold;
-            border: 1px solid var(--secondary);
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: rgba(0,0,0,0.8); color: var(--gold);
+            padding: 5px; font-size: 0.8rem; text-align: center;
+            border-top: 1px solid var(--gold);
+            font-family: 'Rajdhani'; font-weight: bold; letter-spacing: 2px;
         }
 
         @media (max-width: 768px) { 
             .gallery-viewport { height: 500px; perspective: 1000px; } 
-            .gallery-item { width: 140px; height: 200px; margin-left: -70px; margin-top: -100px; } 
+            .gallery-item { width: 160px; height: 220px; margin-left: -80px; margin-top: -110px; } 
         }
 
         /* Lightbox */
         .lightbox { position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; }
         .lightbox.open { opacity: 1; pointer-events: all; }
-        .lightbox img { max-width: 95%; max-height: 95%; border: 2px solid var(--primary); box-shadow: 0 0 50px var(--primary); transform: scale(0.9); transition: 0.3s; }
+        .lightbox img { max-width: 95%; max-height: 95%; border: 2px solid var(--gold); box-shadow: 0 0 50px var(--gold); transform: scale(0.9); transition: 0.3s; background: white; }
         .lightbox.open img { transform: scale(1); }
         .lightbox-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 40px; cursor: pointer; }
 
@@ -188,7 +191,7 @@
         </div>
     </section>
 
-    <!-- UPDATED DYNAMIC GALLERY SECTION -->
+    <!-- UPDATED: OUR GOLD STANDARD SECTION -->
     <section id="gallery" class="relative bg-black overflow-hidden border-y border-white/10">
         <!-- Lightning Canvas Background -->
         <canvas id="canvas-lightning"></canvas>
@@ -196,11 +199,11 @@
         <div class="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-black to-transparent z-20 pointer-events-none"></div>
         
         <div class="relative z-30 text-center pt-12 pb-4 pointer-events-none">
-            <h2 class="text-4xl md:text-6xl font-bold text-white tracking-widest mb-2" style="text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);">
-                <span class="text-[#00f2ff]">NEON</span> COLLECTION
+            <h2 class="text-4xl md:text-6xl font-bold text-white tracking-widest mb-2" style="text-shadow: 0 0 20px rgba(255, 165, 0, 0.3);">
+                OUR <span class="text-[#FFD700]">GOLD</span> STANDARD
             </h2>
-            <p class="text-gray-400 text-sm mt-2 tracking-[0.3em] uppercase">
-                <i class="fas fa-sync fa-spin text-orange-500 mr-2"></i> Drag to Spin • Click to Expand
+            <p class="text-gray-400 text-sm mt-2 tracking-[0.3em] uppercase font-semibold">
+                <i class="fas fa-drafting-compass text-orange-500 mr-2"></i> 2D Layouts • 3D Elevations • Structural Design
             </p>
         </div>
 
@@ -288,7 +291,7 @@
             }, (err) => { alert("Email Error: " + JSON.stringify(err)); btn.innerText = 'SEND ENQUIRY'; });
         });
 
-        /* --- 2. UPGRADED DYNAMIC GALLERY LOGIC (Lightning + 20 Images) --- */
+        /* --- 2. GALLERY LOGIC (GOLD STANDARD) --- */
         let radius=0, currentAngle=0, targetAngle=0, isDragging=false, startX=0, lastX=0;
         
         function initGallery() { 
@@ -296,35 +299,31 @@
             if(!ring)return; 
             
             const isMobile=window.innerWidth<768;
-            // Using 20 images. We'll map them 1.jpg to 20.jpg
-            const count = 20;
-            // Make the ring larger for 20 images
-            const widthItem = isMobile ? 160 : 220; 
-            radius = Math.round((count * widthItem) / (2 * Math.PI)) + 50; // +50 for breathing room
+            const count = 20; // 1.jpg to 20.jpg
+            const widthItem = isMobile ? 160 : 240; 
+            radius = Math.round((count * widthItem) / (2 * Math.PI)) + 50; 
             
             ring.innerHTML=''; 
             
             for(let i=1; i<=count; i++) {
-                const url = `${i}.jpg`; // Assuming 1.jpg, 2.jpg... in root
+                const url = `${i}.jpg`; // Assumes images are in same folder as index.html
                 const d = document.createElement('div');
                 d.className = 'gallery-item';
                 
-                // Atomic Layout: Tilt every other image slightly for a chaotic/active look
                 const angle = i * (360 / count);
                 d.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`;
                 
-                // Add onerror handler to fallback to placeholder if image missing
-                d.innerHTML=`<img src="${url}" onerror="this.src='https://via.placeholder.com/220x300/00f2ff/000?text=Img+${i}'"><div class="gallery-tag">#${i}</div>`;
+                // Add text label "DESIGN #X"
+                d.innerHTML=`<img src="${url}" onerror="this.src='https://via.placeholder.com/240x320/000/FFD700?text=DESIGN+${i}'"><div class="gallery-tag">DESIGN #${i}</div>`;
                 d.onclick = () => openLightbox(url);
                 ring.appendChild(d);
             } 
             
-            // Initial Tilt for "Atomic" look
+            // Initial Tilt for 3D Blueprint look
             ring.style.transform=`translateZ(-${radius}px) rotateY(0deg) rotateX(-5deg)`;
 
-            // Drag Logic
             const start=x=>{isDragging=true;startX=x;lastX=x;ring.parentElement.style.cursor='grabbing';};
-            const move=x=>{if(!isDragging)return;const d=x-lastX;lastX=x;targetAngle+=d*0.2;}; // Increased sensitivity
+            const move=x=>{if(!isDragging)return;const d=x-lastX;lastX=x;targetAngle+=d*0.2;}; 
             const end=()=>{isDragging=false;ring.parentElement.style.cursor='grab';};
             
             viewport.addEventListener('mousedown',e=>start(e.clientX)); 
@@ -338,13 +337,10 @@
         }
 
         function animateGallery() { 
-            // Inertia
-            if(!isDragging) targetAngle -= 0.05; // Constant slow rotation
+            if(!isDragging) targetAngle -= 0.05; 
             currentAngle += (targetAngle - currentAngle) * 0.05; 
-            
             const r = document.getElementById('gallery-ring'); 
             if(r) {
-                // Combine Y rotation (spinning) with slight X tilt for 3D effect
                 r.style.transform = `translateZ(-${radius}px) rotateY(${currentAngle}deg) rotateX(-5deg)`; 
             }
             requestAnimationFrame(animateGallery); 
@@ -353,14 +349,13 @@
         function openLightbox(src) { 
             const img = document.getElementById('lightbox-img');
             img.src=src; 
-            // Check if image loads, if not, don't open or show error
             img.onerror = function(){ this.src='https://via.placeholder.com/800x600/000/fff?text=Image+Not+Found'; };
             document.getElementById('lightbox').classList.add('open'); 
         } 
         
         function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
 
-        /* --- 3. LIGHTNING EFFECT (CANVAS) --- */
+        /* --- 3. LIGHTNING EFFECT --- */
         function initLightning() {
             const c = document.getElementById('canvas-lightning');
             if(!c) return;
@@ -374,21 +369,20 @@
             const bolts = [];
             
             function createBolt() {
-                // Start from random position at top or bottom
                 const startX = Math.random() * w;
                 const startY = Math.random() > 0.5 ? 0 : h;
                 const endX = Math.random() * w;
-                const endY = h/2 + (Math.random() - 0.5) * 200; // Converge near middle
+                const endY = h/2 + (Math.random() - 0.5) * 200; 
                 
                 bolts.push({
                     x: startX, y: startY,
                     tx: endX, ty: endY,
                     segments: [],
-                    life: 1, // Opacity
-                    color: Math.random() > 0.5 ? '#00f2ff' : '#ffffff' // Cyan or White
+                    life: 1, 
+                    // Colors updated to Gold/White/Cyan mix
+                    color: Math.random() > 0.6 ? '#FFD700' : (Math.random() > 0.5 ? '#00f2ff' : '#ffffff') 
                 });
                 
-                // Generate jagged path
                 let currX = startX, currY = startY;
                 const steps = 15;
                 const dx = (endX - startX)/steps;
@@ -396,7 +390,7 @@
                 
                 for(let i=0; i<steps; i++) {
                     bolts[bolts.length-1].segments.push({x: currX, y: currY});
-                    currX += dx + (Math.random()-0.5)*30; // Jitter
+                    currX += dx + (Math.random()-0.5)*30; 
                     currY += dy + (Math.random()-0.5)*30;
                 }
                 bolts[bolts.length-1].segments.push({x: endX, y: endY});
@@ -404,8 +398,6 @@
 
             function animateLightning() {
                 ctx.clearRect(0, 0, w, h);
-                
-                // Randomly spawn bolt (low chance)
                 if(Math.random() < 0.03) createBolt();
                 
                 for(let i=0; i<bolts.length; i++) {
@@ -422,15 +414,11 @@
                         ctx.lineTo(b.segments[j].x, b.segments[j].y);
                     }
                     ctx.stroke();
-                    
-                    b.life -= 0.05; // Fade out
+                    b.life -= 0.05; 
                 }
-                
-                // Remove dead bolts
                 for(let i=bolts.length-1; i>=0; i--) {
                     if(bolts[i].life <= 0) bolts.splice(i, 1);
                 }
-                
                 requestAnimationFrame(animateLightning);
             }
             animateLightning();
@@ -439,11 +427,11 @@
         /* --- 4. BACKGROUNDS & INIT --- */
         window.addEventListener('load', () => { 
             gsap.to('#loader', {opacity:0, duration:0.5, delay:1.5, onComplete:()=>document.getElementById('loader').style.display='none'}); 
-            initTopWave();      // Orange Wave (Top)
-            initNeonWave();     // Blue Neon (Middle)
-            initStarryNight();  // Stars (Bottom)
-            initGallery();      // THE NEW 20 IMAGE GALLERY
-            initLightning();    // THE LIGHTNING EFFECT
+            initTopWave();      
+            initNeonWave();     
+            initStarryNight();  
+            initGallery();      
+            initLightning();    
             initTypewriter(); 
         });
 
