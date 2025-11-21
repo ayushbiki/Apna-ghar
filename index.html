@@ -466,9 +466,10 @@
             animate();
         }
 
-        /* --- 5. AI WITH SAFETY CHECKS --- */
+        /* --- 5. AI WITH AUTO-HEALING LOOP --- */
         const userKey = "AIzaSyALr4JtHcqwlNsUOmIfBkiClxgPt2N0ubw"; 
-        const MODEL = "gemini-1.5-flash"; 
+        // Auto-healing: Try specific version first, then alias, then pro
+        const MODELS = ["gemini-1.5-flash-001", "gemini-1.5-flash", "gemini-pro"];
 
         async function callGemini(prompt) {
             document.body.style.cursor = 'wait';
@@ -477,35 +478,45 @@
                 console.warn("Running locally. AI likely blocked by CORS."); 
             }
 
-            // Simple REST API Call (Universal Browser Support)
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${userKey}`;
-            
-            try {
-                const response = await fetch(url, { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) 
-                });
+            for (let i = 0; i < MODELS.length; i++) {
+                const model = MODELS[i];
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${userKey}`;
                 
-                const data = await response.json();
-                document.body.style.cursor = 'default';
+                try {
+                    console.log(`Trying model: ${model}`); // Debug log
+                    const response = await fetch(url, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) 
+                    });
+                    
+                    const data = await response.json();
 
-                if (!response.ok) { 
-                    console.error("AI API Error:", data);
-                    let msg = `Error ${response.status}: ${data.error?.message || 'Unknown Error'}`;
-                    // Show helpful popup for user
-                    alert(`⚠️ AI Failed.\n\nReason: ${msg}\n\nFix: Check Google AI Studio > API Keys > Restrictions.`);
-                    return "⚠️ AI Error. Check Console.";
+                    if (!response.ok) { 
+                        console.error(`Model ${model} failed:`, data);
+                        // If it's the last model and failed, show alert
+                        if (i === MODELS.length - 1) {
+                            document.body.style.cursor = 'default';
+                            let msg = `Error ${response.status}: ${data.error?.message || 'Unknown Error'}`;
+                            alert(`⚠️ AI Failed.\n\nReason: ${msg}\n\nFix: Check Google AI Studio.`);
+                            return "⚠️ AI Error.";
+                        }
+                        continue; // Try next model
+                    }
+                    
+                    document.body.style.cursor = 'default';
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response text.";
+                    
+                } catch (e) { 
+                    console.error("Network Error:", e);
+                    if (i === MODELS.length - 1) {
+                        document.body.style.cursor = 'default';
+                        alert("⚠️ Network Blocked.\n\nThis website is likely running in 'Preview' mode or Localhost.\n\nUpload to GitHub Pages to fix.");
+                        return "⚠️ Network Blocked."; 
+                    }
                 }
-                
-                return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response text.";
-                
-            } catch (e) { 
-                console.error("Network Error:", e);
-                document.body.style.cursor = 'default';
-                alert("⚠️ Network Blocked.\n\nThis website is likely running in 'Preview' mode or Localhost.\n\nUpload to GitHub Pages to fix.");
-                return "⚠️ Network Blocked."; 
             }
+            return "⚠️ AI Unavailable.";
         }
 
         async function generateCostEstimate() { const btn=document.getElementById('btn-estimate'); btn.innerHTML='...'; const res=await callGemini(`Estimate cost for house in Bihar: Area ${document.getElementById('ai-area').value} sqft. HTML Table.`); document.getElementById('result-estimate').innerHTML=res.replace(/```html|```/g,''); document.getElementById('result-estimate').classList.remove('hidden'); btn.innerHTML='✨ ESTIMATE'; }
