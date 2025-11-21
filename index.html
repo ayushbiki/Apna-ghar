@@ -468,36 +468,44 @@
 
         /* --- 5. AI WITH SAFETY CHECKS --- */
         const userKey = "AIzaSyALr4JtHcqwlNsUOmIfBkiClxgPt2N0ubw"; 
-        const MODELS = ["gemini-1.5-flash", "gemini-1.5-flash-001", "gemini-pro"];
+        const MODEL = "gemini-1.5-flash"; 
 
         async function callGemini(prompt) {
             document.body.style.cursor = 'wait';
-            if (window.location.hostname === '' || window.location.protocol === 'file:') { console.warn("Local environment detected. AI requests may be blocked."); }
-
-            for (let model of MODELS) {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${userKey}`;
-                try {
-                    const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });
-                    const data = await response.json();
-                    document.body.style.cursor = 'default';
-
-                    if (!response.ok) { 
-                        console.error("AI Error:", data);
-                        if(response.status === 404) continue; 
-                        if(response.status === 400) return "API Error: Key Invalid or Bad Request.";
-                        return `API Error (${response.status}): ${data.error?.message}`; 
-                    }
-                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response text.";
-                } catch (e) { 
-                    console.error("Network Error:", e);
-                    if (model === MODELS[MODELS.length - 1]) {
-                        document.body.style.cursor = 'default';
-                        return `⚠️ Network Blocked. \n\nIf you are seeing this in 'Preview', this is normal. \n\nPLEASE DEPLOY TO GITHUB to use AI features.`; 
-                    }
-                }
+            
+            if (window.location.hostname === '' || window.location.protocol === 'file:') { 
+                console.warn("Running locally. AI likely blocked by CORS."); 
             }
-            document.body.style.cursor = 'default';
-            return "⚠️ AI Unavailable.";
+
+            // Simple REST API Call (Universal Browser Support)
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${userKey}`;
+            
+            try {
+                const response = await fetch(url, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) 
+                });
+                
+                const data = await response.json();
+                document.body.style.cursor = 'default';
+
+                if (!response.ok) { 
+                    console.error("AI API Error:", data);
+                    let msg = `Error ${response.status}: ${data.error?.message || 'Unknown Error'}`;
+                    // Show helpful popup for user
+                    alert(`⚠️ AI Failed.\n\nReason: ${msg}\n\nFix: Check Google AI Studio > API Keys > Restrictions.`);
+                    return "⚠️ AI Error. Check Console.";
+                }
+                
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response text.";
+                
+            } catch (e) { 
+                console.error("Network Error:", e);
+                document.body.style.cursor = 'default';
+                alert("⚠️ Network Blocked.\n\nThis website is likely running in 'Preview' mode or Localhost.\n\nUpload to GitHub Pages to fix.");
+                return "⚠️ Network Blocked."; 
+            }
         }
 
         async function generateCostEstimate() { const btn=document.getElementById('btn-estimate'); btn.innerHTML='...'; const res=await callGemini(`Estimate cost for house in Bihar: Area ${document.getElementById('ai-area').value} sqft. HTML Table.`); document.getElementById('result-estimate').innerHTML=res.replace(/```html|```/g,''); document.getElementById('result-estimate').classList.remove('hidden'); btn.innerHTML='✨ ESTIMATE'; }
