@@ -466,14 +466,15 @@
             animate();
         }
 
-        /* --- 5. AI WITH PRO KEY & AUTO-HEALING --- */
-        const userKey = "AIzaSyCx5yqLzl-cPW9WCwyaQXNl3ls8X7BPK9Q"; // NEW PRO KEY
-        const MODELS = ["gemini-1.5-flash-001", "gemini-1.5-flash", "gemini-pro"];
+        /* --- 5. AI WITH PRO KEY & UPDATED MODELS --- */
+        const userKey = "AIzaSyCx5yqLzl-cPW9WCwyaQXNl3ls8X7BPK9Q"; 
+        
+        // Updated Model List - Force Latest Versions to avoid 404
+        const MODELS = ["gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-1.0-pro-latest"];
 
         async function callGemini(prompt) {
             document.body.style.cursor = 'wait';
             
-            // Check if running locally (Preview/Localhost often blocks requests)
             if (window.location.hostname === '' || window.location.protocol === 'file:') { 
                 console.warn("Running locally. AI likely blocked by CORS."); 
             }
@@ -483,6 +484,7 @@
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${userKey}`;
                 
                 try {
+                    console.log(`Trying model: ${model}`);
                     const response = await fetch(url, { 
                         method: 'POST', 
                         headers: { 'Content-Type': 'application/json' }, 
@@ -493,10 +495,15 @@
 
                     if (!response.ok) { 
                         console.error(`Model ${model} failed:`, data);
+                        
+                        // CRITICAL FIX: If model not found (404), try next immediately
+                        if (response.status === 404) continue; 
+
+                        // If last model failed or other error
                         if (i === MODELS.length - 1) {
                             document.body.style.cursor = 'default';
                             let msg = `Error ${response.status}: ${data.error?.message || 'Unknown Error'}`;
-                            alert(`⚠️ AI Failed.\n\nReason: ${msg}\n\nFix: Verify Key or Limits.`);
+                            alert(`⚠️ AI Failed.\n\nReason: ${msg}\n\nTip: Check 'Generative Language API' is enabled in Google Console.`);
                             return "⚠️ AI Error.";
                         }
                         continue; 
