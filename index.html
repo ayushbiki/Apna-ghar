@@ -464,13 +464,13 @@
             animate();
         }
 
-        /* --- 5. AI (FINAL MANUAL FIX: PASTE KEY HERE) --- */
+        /* --- 5. AI (FINAL EMBEDDED KEY) --- */
         const MODEL = "gemini-2.5-flash";
 
-        // ⚠️ REPLACE "REPLACE_ME" WITH YOUR NEW KEY PARTS
-        const part1 = "AIzaSy";       // <-- Paste first 6-8 chars
-        const part2 = "BZYYCNWnJevtpF";   // <-- Paste middle chunk
-        const part3 = "2zeE-TAIHsKXtBiaKp4";   // <-- Paste last chunk
+        // AUTOMATICALLY EMBEDDED KEY
+        const part1 = "AIzaSyBZYYCN"; 
+        const part2 = "WnJevtpF2zeE-"; 
+        const part3 = "TAIHsKXtBiaKp4"; 
         
         const API_KEY = part1 + part2 + part3;
 
@@ -501,7 +501,6 @@
                 if (!response.ok) { 
                     console.error("AI API Error:", data);
                     let msg = `Error ${response.status}: ${data.error?.message || 'Unknown Error'}`;
-                    if(API_KEY.includes("REPLACE_ME")) { msg = "You forgot to paste your new API Key into the code!"; }
                     alert(`⚠️ AI Failed.\n\nReason: ${msg}`);
                     return "⚠️ AI Error.";
                 }
@@ -524,6 +523,3 @@
     </script>
 </body>
 </html>
-
-
-
